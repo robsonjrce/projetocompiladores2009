@@ -1,0 +1,73 @@
+/**
+ *
+ * Analisador Lexico Linguagem minijava 
+ *
+ */
+ PARSER_BEGIN(MyParser)
+ 	class MyParser {}
+ PARSER_END(MyParser)
+ 
+ /* Tokens */
+ TOKEN: {
+	  <ID: <LETRA> (<LETRA>|<DIGITO>)*>
+	| <#LETRA: ["_","a"-"z","A"-"Z"]>
+	| <#DIGITO: ["0"-"9"]>
+}
+ 
+ TOKEN: {
+ 	  <MAINCLASS: "MainClass"> 
+ 	| <CLASS: "class">
+ 	| <PUBLIC: "public">
+ 	| <STATIC: "static">
+ 	| <VOID: "void">
+ 	| <MAIN: "main">
+ 	| <EXTENDS: "extends">
+	| <RETURN: "return">
+
+	| <STRING: "String">
+	| <INT: "int">
+	| <INT_VETOR: <INT><LBRACKET><RBRACKET>>
+	| <BOOLEAN: "boolean">
+
+	| <IF: "if">
+	| <ELSE: "else">
+	| <WHILE: "while">
+	| <PRINT_LINE: "System.out.println">
+	| <LENGTH: "length">
+
+	| <RECEBE: "=">
+	| <MENOR: "<">
+	| <MAIOR: ">">
+	| <DIFERENTE: "!">
+	| <IGUAL: "==">
+	| <E: "&&">
+	| <OU: "||">
+	| <MAIS: "+">
+	| <MENOS: "-">
+	| <VEZES: "*">
+	| <BARRA: "/">
+
+	| <INTEGER_LITERAL: ["1"-"9"] (["0"-"9"])*>
+	| <BOOLEAN_LITERAL: ("true"|"false")>
+
+	| <NEW: "new">
+	| <THIS: "this">
+ 	
+	| <LPAREN: "(">
+	| <RPAREN: ")">
+	| <LBRACE: "{">
+	| <RBRACE: "}">
+	| <LBRACKET: "[">
+	| <RBRACKET: "]">
+	| <PONTOVIRGULA: ";">
+	| <VIRGULA: ",">
+	| <PONTO: ".">
+}
+
+ SKIP: {
+ 	  " "
+ 	| "\n"
+ 	| "\t"
+ 	| "\r"
+ 
+ }
