@@ -17,7 +17,7 @@
  TOKEN: {
  	  <MAINCLASS: "MainClass"> 
  	| <CLASS: "class">
- 	| <PUBLIC: "public">
+ 	| <PUBLIC: "">
  	| <STATIC: "static">
  	| <VOID: "void">
  	| <MAIN: "main">
