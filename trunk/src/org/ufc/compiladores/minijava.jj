@@ -9,13 +9,11 @@
  
  /* Tokens */
  TOKEN: {
-	  <ID: <LETRA> (<LETRA>|<DIGITO>)*>
-	| <#LETRA: ["_","a"-"z","A"-"Z"]>
+	  
+	 <#LETRA: ["_","a"-"z","A"-"Z"]>
 	| <#DIGITO: ["0"-"9"]>
-}
- 
- TOKEN: {
- 	  <MAINCLASS: "MainClass"> 
+
+ 	| <MAINCLASS: "MainClass"> 
  	| <CLASS: "class">
  	| <PUBLIC: "public">
  	| <STATIC: "static">
@@ -38,7 +36,7 @@
 	| <RECEBE: "=">
 	| <MENOR: "<">
 	| <MAIOR: ">">
-	| <DIFERENTE: "!">
+	| <DIFERENTE: "!=">
 	| <IGUAL: "==">
 	| <E: "&&">
 	| <OU: "||">
@@ -47,7 +45,8 @@
 	| <VEZES: "*">
 	| <BARRA: "/">
 
-	| <INTEGER_LITERAL: ["1"-"9"] (["0"-"9"])*>
+	| <INTEGER_LITERAL: <DIGITO>+ (<DIGITO>)*>
+	| <REAL_LITERAL: ( (<DIGITO>)+ "." (<DIGITO>)* ) | ( (<DIGITO>)* "." (<DIGITO>)+ )>
 	| <BOOLEAN_LITERAL: ("true"|"false")>
 
 	| <NEW: "new">
@@ -62,6 +61,8 @@
 	| <PONTOVIRGULA: ";">
 	| <VIRGULA: ",">
 	| <PONTO: ".">
+	
+	| <ID: <LETRA> (<LETRA>|<DIGITO>)*>
 }
 
  SKIP: {
