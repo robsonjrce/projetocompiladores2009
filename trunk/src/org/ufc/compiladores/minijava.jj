@@ -46,7 +46,6 @@
 	| <BARRA: "/">
 
 	| <INTEGER_LITERAL: <DIGITO> (<DIGITO>)*>
-	| <REAL_LITERAL: ( (<DIGITO>)+ "." (<DIGITO>)* ) | ( (<DIGITO>)* "." (<DIGITO>)+ )>
 	| <BOOLEAN_LITERAL: ("true"|"false")>
 
 	| <NEW: "new">
