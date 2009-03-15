@@ -36,7 +36,7 @@
 	| <RECEBE: "=">
 	| <MENOR: "<">
 	| <MAIOR: ">">
-	| <DIFERENTE: "!=">
+	| <NEGADO: "!">
 	| <IGUAL: "==">
 	| <E: "&&">
 	| <OU: "||">
