@@ -65,9 +65,217 @@
 }
 
  SKIP: {
- 	  " "
+ 	  < "//" (["a"-"z"])* ("\n" | "\r" | "\r\n")>
+ 	| " "
  	| "\n"
  	| "\t"
  	| "\r"
- 
  }
+ 
+ void Start() : {}
+ { Program() 
+   <EOF> 
+   { return jjtThis; } 
+ }
+ 
+ void Program() : {}
+ { 
+ MainClass()(LOOKAHEAD(DerivedClass())DerivedClass() | Class())*
+ }
+ 
+ void MainClass() : {}
+ {  <CLASS> <ID> <LBRACE> <PUBLIC> <STATIC> <VOID> <MAIN>
+	<LPAREN> <STRING> <LBRACKET> <RBRACKET> <ID> <RPAREN> 
+	<LBRACE> MainMethod() <RBRACE> <RBRACE>   
+ }
+ 
+ void MainMethod():{}
+ {
+ (MethodBody())*
+ }
+ 
+ void Class() : {}
+ {
+ <CLASS> <ID> <LBRACE> (Body())* <RBRACE>
+ }
+ 
+ void DerivedClass() : {}
+ {
+ <CLASS> <ID> <EXTENDS> <ID> <LBRACE> (Body())* <RBRACE>
+ }
+ 
+ void Body() : {}
+ {
+ VarDecl()
+ | MethodDecl()
+ }
+ 
+ void VarDecl() : {}
+ {
+ Type() <ID> <RECEBE> Exp() <PONTOVIRGULA>
+ }
+ 
+ void MethodDecl() : {}
+ {
+ <PUBLIC> Type() <ID> <LPAREN>
+ FormalList() <RPAREN> <LBRACE>
+ MethodBoodyBlock() <RETURN> Exp()
+ <PONTOVIRGULA> <RBRACE>
+ }
+
+ void MethodBoodyBlock():{}
+ {
+ (MethodBody())*
+ }
+ 
+ void MethodBody() : {}
+ {
+ LOOKAHEAD(VarDecl()) VarDecl()
+ | Stm()
+ }
+ 
+ void FormalList() : {}
+ {
+ [ Parameter() ( <VIRGULA> Parameter() )* ]
+ }
+ 
+ void Parameter() : {}
+ {
+ Type() <ID>
+ }
+ 
+ void Type() : {}
+ {
+ <BOOLEAN>
+ | <ID>
+ | LOOKAHEAD(<INT_VETOR>) <INT_VETOR>
+ | <INT>
+ }
+
+ void Object() : {}
+ {
+ <THIS>
+ | <ID>
+ }
+ 
+ void Stm() : {}
+ {
+ LOOKAHEAD(IfElse()) IfElse()
+ | If()
+ | While()
+ | Print()
+ | Assignment()
+ | <LBRACE> (Stm())* <RBRACE>
+ }
+
+ void UnaryAssignment() : {}
+ {
+ [ LOOKAHEAD(2) Object() <PONTO> ]
+ <ID> <RECEBE> Exp()
+ }
+
+ void ArrayAssignment() : {}
+ {
+ [ LOOKAHEAD(2) Object() <PONTO> ]
+ <ID> <LBRACKET> Exp() <RBRACKET>
+ <RECEBE> Exp()
+ }
+
+ void Assignment() : {}
+ {
+ (LOOKAHEAD(
+ ArrayAssignment())ArrayAssignment() |
+ UnaryAssignment()) <PONTOVIRGULA>
+ } 
+ 
+ void If() : {}
+ {
+ <IF> <LPAREN> Exp() <RPAREN> Stm()
+ }
+ 
+ void IfElse() : {}
+ {
+ <IF> <LPAREN> Exp() <RPAREN> Stm() <ELSE> Stm()
+ }
+
+ void Print() : {}
+ {
+ <PRINT_LINE> <LPAREN> Exp() <RPAREN> <PONTOVIRGULA>
+ }
+ 
+ void While() : {}
+ {
+ <WHILE> <LPAREN> Exp() <RPAREN> Stm()
+ }
+
+ void Exp() : {}
+ {
+ OrExp()
+ | NewObject()
+ }
+
+ void OrExp() : {}
+ {
+ AndExp() ( <OU> AndExp() )*
+ }
+ 
+ void AndExp() : {}
+ {
+ NotExp() ( <E> NotExp())*
+ }
+ 
+ void NotExp() : {}
+ {
+ [ <NEGADO> ] LGEExp()
+ }
+
+ void LGEExp() : {}
+ {
+ AdditiveExpression()( ( <MAIOR> | <MENOR> | <IGUAL>
+ ) AdditiveExpression())*
+ }
+
+ void AdditiveExpression() : {}
+ {
+ MultiplicativeExpression() ( ( <MAIS> | <MENOS> )
+ MultiplicativeExpression() )*
+ }
+ 
+ void MultiplicativeExpression() : {}
+ {
+ UnaryExpression() ( ( <VEZES> | <BARRA> ) UnaryExpression())*
+ }
+
+ void UnaryExpression() : {}
+ {
+ [ <MENOS> ] Element()
+ }
+
+ void Element() : {}
+{
+<INTEGER_LITERAL>
+| <BOOLEAN_LITERAL>
+| IdExp()
+| <LPAREN> Exp() <RPAREN>
+}
+
+void IdExp() : {}
+{
+LOOKAHEAD( <ID> <PONTO><LENGTH> ) <ID> <PONTO> <LENGTH>
+| [ LOOKAHEAD(Object() <PONTO>) Object() <PONTO> ] <ID> [ <LBRACKET>
+  Exp() <RBRACKET>
+| <PONTO> <LENGTH>
+| <LPAREN> ExpList() <RPAREN>
+]
+}
+
+void NewObject() : {}
+{
+<NEW> ( <INT> <LBRACKET> Exp() <RBRACKET> | <ID> <LPAREN>
+<RPAREN> )
+}
+
+void ExpList() : {}
+{
+[ Exp() (<VIRGULA> Exp())* ]
+}
