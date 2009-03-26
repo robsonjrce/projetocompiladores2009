@@ -17,6 +17,7 @@
  	| <CLASS: "class">
  	| <PUBLIC: "public">
  	| <STATIC: "static">
+ 	| <FINAL: "final">
  	| <VOID: "void">
  	| <MAIN: "main">
  	| <EXTENDS: "extends">
