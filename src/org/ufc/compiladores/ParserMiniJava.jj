@@ -1,11 +1,22 @@
 /**
  *
- * Analisador Lexico Linguagem minijava 
+ * Analisador Lexico e Sintatico para Linguagem MiniJava 
  *
  */
- PARSER_BEGIN(MyParser)
- 	class MyParser {}
- PARSER_END(MyParser)
+ PARSER_BEGIN(ParserMiniJava)
+ 	class ParserMiniJava 
+ 	{
+ 		public static void main(String args[]) throws Exception
+ 		{
+ 			// Iniciamos um novo parser para a nossa gramatica
+			ParserMiniJava parserMiniJava = new ParserMiniJava(System.in);
+		    while (true)
+		    {
+		        parserMiniJava.Start();
+		    }
+ 		}
+ 	}
+ PARSER_END(ParserMiniJava)
  
  /* Tokens */
  TOKEN: {
@@ -17,7 +28,6 @@
  	| <CLASS: "class">
  	| <PUBLIC: "public">
  	| <STATIC: "static">
- 	| <FINAL: "final">
  	| <VOID: "void">
  	| <MAIN: "main">
  	| <EXTENDS: "extends">
@@ -74,9 +84,8 @@
  }
  
  void Start() : {}
- { Program() 
-   <EOF> 
-   { return jjtThis; } 
+ { 
+   Program() <EOF>
  }
  
  void Program() : {}
