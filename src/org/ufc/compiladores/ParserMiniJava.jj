@@ -55,7 +55,7 @@
 	| <OU: "||">
 	| <MAIS: "+">
 	| <MENOS: "-">
-	| <VEZES: "*">
+	| <ESTRELA: "*">
 	| <BARRA: "/">
 
 	| <INTEGER_LITERAL: <DIGITO> (<DIGITO>)*>
@@ -243,8 +243,7 @@
 
  void LGEExp() : {}
  {
- AdditiveExpression()( ( <MAIOR> | <MENOR> | <IGUAL>
- ) AdditiveExpression())*
+ AdditiveExpression() ( ( <MAIOR> | <MENOR> | <IGUAL> ) AdditiveExpression())*
  }
 
  void AdditiveExpression() : {}
@@ -255,7 +254,7 @@
  
  void MultiplicativeExpression() : {}
  {
- UnaryExpression() ( ( <VEZES> | <BARRA> ) UnaryExpression())*
+ UnaryExpression() ( ( <ESTRELA> | <BARRA> ) UnaryExpression() )*
  }
 
  void UnaryExpression() : {}
