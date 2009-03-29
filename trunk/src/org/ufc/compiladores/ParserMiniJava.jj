@@ -10,6 +10,8 @@
  		{
  			// Iniciamos um novo parser para a nossa gramatica
 			ParserMiniJava parserMiniJava = new ParserMiniJava(System.in);
+			
+			// Checar os dados enquanto passarmos dados validos ao parser
 		    while (true)
 		    {
 		        parserMiniJava.Start();
@@ -122,15 +124,15 @@
  
  void VarDecl() : {}
  {
- Type() <ID> <RECEBE> Exp() <PONTOVIRGULA>
+ Type() <ID> <PONTOVIRGULA>
  }
  
  void MethodDecl() : {}
  {
- <PUBLIC> Type() <ID> <LPAREN>
- FormalList() <RPAREN> <LBRACE>
- MethodBoodyBlock() <RETURN> Exp()
- <PONTOVIRGULA> <RBRACE>
+	 <PUBLIC> Type() <ID> <LPAREN> FormalList() <RPAREN> 
+	 <LBRACE>
+	 	MethodBoodyBlock() <RETURN> Exp()<PONTOVIRGULA> 
+	 <RBRACE>
  }
 
  void MethodBoodyBlock():{}
