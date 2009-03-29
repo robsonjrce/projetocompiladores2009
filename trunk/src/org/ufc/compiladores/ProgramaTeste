@@ -24,6 +24,15 @@ class ProgramaMetodos
     {
       System.out.println(5);
     }
+
+    if  ( ! (entrada == 5) )
+    {
+      System.out.println(6);
+    }
+    else
+    {
+      System.out.println(5);
+    }
     return entrada;
   }
 }
