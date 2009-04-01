@@ -6,6 +6,7 @@ class ProgramaTeste
   {
     if (a == 10)
     { System.out.println(10); }
+    else {}
   }
 }
 class ProgramaTesteBase
@@ -24,7 +25,7 @@ class ProgramaMetodos
     {
       System.out.println(5);
     }
-
+    else {}
     if  ( ! (entrada == 5) )
     {
       System.out.println(6);
