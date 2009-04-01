@@ -86,183 +86,166 @@
  }
  
  void Start() : {}
- { 
-   Program() <EOF>
- }
- 
- void Program() : {}
- { 
- MainClass()(LOOKAHEAD(DerivedClass())DerivedClass() | Class())*
- }
- 
- void MainClass() : {}
- {  <CLASS> <ID> <LBRACE> <PUBLIC> <STATIC> <VOID> <MAIN>
-	<LPAREN> <STRING> <LBRACKET> <RBRACKET> <ID> <RPAREN> 
-	<LBRACE> MainMethod() <RBRACE> <RBRACE>   
- }
- 
- void MainMethod():{}
- {
- (MethodBody())*
- }
- 
- void Class() : {}
- {
- <CLASS> <ID> <LBRACE> (Body())* <RBRACE>
- }
- 
- void DerivedClass() : {}
- {
- <CLASS> <ID> <EXTENDS> <ID> <LBRACE> (Body())* <RBRACE>
- }
- 
- void Body() : {}
- {
- VarDecl()
- | MethodDecl()
- }
- 
- void VarDecl() : {}
- {
- Type() <ID> <PONTOVIRGULA>
- }
- 
- void MethodDecl() : {}
- {
-	 <PUBLIC> Type() <ID> <LPAREN> FormalList() <RPAREN> 
-	 <LBRACE>
-	 	MethodBoodyBlock() <RETURN> Exp()<PONTOVIRGULA> 
-	 <RBRACE>
- }
+{
+Program() <EOF>
+}
 
- void MethodBoodyBlock():{}
- {
- (MethodBody())*
- }
- 
- void MethodBody() : {}
- {
- LOOKAHEAD(VarDecl()) VarDecl()
- | Stm()
- }
- 
- void FormalList() : {}
- {
- [ Parameter() ( <VIRGULA> Parameter() )* ]
- }
- 
- void Parameter() : {}
- {
- Type() <ID>
- }
- 
- void Type() : {}
- {
- <BOOLEAN>
- | <ID>
- | LOOKAHEAD(<INT_VETOR>) <INT_VETOR>
- | <INT>
- }
+void Program() : {}
+{
+MainClass()(LOOKAHEAD(ClassDecl())ClassDecl() | Class())*
+}
 
- void Object() : {}
- {
- <THIS>
- | <ID>
- }
- 
- void Stm() : {}
- {
- LOOKAHEAD(IfElse()) IfElse()
- | If()
- | While()
- | Print()
- | Assignment()
- | <LBRACE> (Stm())* <RBRACE>
- }
+void MainClass() : {}
+{ <CLASS> <ID> <LBRACE> <PUBLIC> <STATIC> <VOID> <MAIN>
+<LPAREN> <STRING> <LBRACKET> <RBRACKET> <ID> <RPAREN>
+<LBRACE> Statement() <RBRACE> <RBRACE>
+}
 
- void UnaryAssignment() : {}
- {
- [ LOOKAHEAD(2) Object() <PONTO> ]
- <ID> <RECEBE> Exp()
- }
+void Class() : {}
+{
+<CLASS> <ID> <LBRACE> (Body())* <RBRACE>
+}
 
- void ArrayAssignment() : {}
- {
- [ LOOKAHEAD(2) Object() <PONTO> ]
- <ID> <LBRACKET> Exp() <RBRACKET>
- <RECEBE> Exp()
- }
+void ClassDecl() : {}
+{
+<CLASS> <ID> <EXTENDS> <ID> <LBRACE> (Body())* <RBRACE>
+}
 
- void Assignment() : {}
- {
- (LOOKAHEAD(
- ArrayAssignment())ArrayAssignment() |
- UnaryAssignment()) <PONTOVIRGULA>
- } 
- 
- void If() : {}
- {
- <IF> <LPAREN> Exp() <RPAREN> Stm()
- }
- 
- void IfElse() : {}
- {
- <IF> <LPAREN> Exp() <RPAREN> Stm() <ELSE> Stm()
- }
+void Body() : {}
+{
+VarDecl()
+| MethodDecl()
+}
 
- void Print() : {}
- {
- <PRINT_LINE> <LPAREN> Exp() <RPAREN> <PONTOVIRGULA>
- }
- 
- void While() : {}
- {
- <WHILE> <LPAREN> Exp() <RPAREN> Stm()
- }
+void VarDecl() : {}
+{
+Type() <ID> <PONTOVIRGULA>
+}
 
- void Exp() : {}
- {
- OrExp()
- | NewObject()
- }
+void MethodDecl() : {}
+{
+<PUBLIC> Type() <ID> <LPAREN> FormalList() <RPAREN>
+<LBRACE>
+(MethodBody())* <RETURN> Exp()<PONTOVIRGULA>
+<RBRACE>
+}
 
- void OrExp() : {}
- {
- AndExp() ( <OU> AndExp() )*
- }
- 
- void AndExp() : {}
- {
- NotExp() ( <E> NotExp())*
- }
- 
- void NotExp() : {}
- {
- [ <NEGADO> ] LGEExp()
- }
+void MethodBody() : {}
+{
+LOOKAHEAD(VarDecl()) VarDecl()
+| Statement()
+}
 
- void LGEExp() : {}
- {
- AdditiveExpression() ( ( <MAIOR> | <MENOR> | <IGUAL> ) AdditiveExpression())*
- }
+void FormalList() : {}
+{
+[ Parameter() ( <VIRGULA> Parameter() )* ]
+}
 
- void AdditiveExpression() : {}
- {
- MultiplicativeExpression() ( ( <MAIS> | <MENOS> )
- MultiplicativeExpression() )*
- }
- 
- void MultiplicativeExpression() : {}
- {
- UnaryExpression() ( ( <ESTRELA> | <BARRA> ) UnaryExpression() )*
- }
+void Parameter() : {}
+{
+Type() <ID>
+}
 
- void UnaryExpression() : {}
- {
- [ <MENOS> ] Element()
- }
+void Type() : {}
+{
+<BOOLEAN>
+| <ID>
+| LOOKAHEAD(<INT_VETOR>) <INT_VETOR>
+| <INT>
+}
 
- void Element() : {}
+void Object() : {}
+{
+<THIS>
+| <ID>
+}
+
+void Statement() : {}
+{
+If()
+| While()
+| Print()
+| Assignment()
+| <LBRACE> (Statement())* <RBRACE>
+}
+
+void Assignment() : {}
+{
+(LOOKAHEAD(ArrayAssignment())ArrayAssignment() |
+UnaryAssignment()) <PONTOVIRGULA>
+}
+
+void UnaryAssignment() : {}
+{
+[ LOOKAHEAD(2) Object() <PONTO> ]
+<ID> <RECEBE> Exp()
+}
+
+void ArrayAssignment() : {}
+{
+[ LOOKAHEAD(2) Object() <PONTO> ]
+<ID> <LBRACKET> Exp() <RBRACKET>
+<RECEBE> Exp()
+}
+
+void If() : {}
+{
+<IF> <LPAREN> Exp() <RPAREN> Statement() <ELSE> Statement()
+}
+
+void Print() : {}
+{
+<PRINT_LINE> <LPAREN> Exp() <RPAREN> <PONTOVIRGULA>
+}
+
+void While() : {}
+{
+<WHILE> <LPAREN> Exp() <RPAREN> Statement()
+}
+
+void Exp() : {}
+{
+OrExp()
+| NewObject()
+}
+
+void OrExp() : {}
+{
+AndExp() ( <OU> AndExp() )*
+}
+
+void AndExp() : {}
+{
+NotExp() ( <E> NotExp())*
+}
+
+void NotExp() : {}
+{
+[ <NEGADO> ] LGEExp()
+}
+
+void LGEExp() : {}
+{
+AdditiveExpression() ( ( <MAIOR> | <MENOR> | <IGUAL> ) AdditiveExpression())*
+}
+
+void AdditiveExpression() : {}
+{
+MultiplicativeExpression() ( ( <MAIS> | <MENOS> )
+MultiplicativeExpression() )*
+}
+
+void MultiplicativeExpression() : {}
+{
+UnaryExpression() ( ( <ESTRELA> | <BARRA> ) UnaryExpression() )*
+}
+
+void UnaryExpression() : {}
+{
+[ <MENOS> ] Element()
+}
+
+void Element() : {}
 {
 <INTEGER_LITERAL>
 | <BOOLEAN_LITERAL>
@@ -274,10 +257,9 @@ void IdExp() : {}
 {
 LOOKAHEAD( <ID> <PONTO><LENGTH> ) <ID> <PONTO> <LENGTH>
 | [ LOOKAHEAD(Object() <PONTO>) Object() <PONTO> ] <ID> [ <LBRACKET>
-  Exp() <RBRACKET>
+Exp() <RBRACKET>
 | <PONTO> <LENGTH>
-| <LPAREN> ExpList() <RPAREN>
-]
+| <LPAREN> ExpList() <RPAREN>  ]
 }
 
 void NewObject() : {}
