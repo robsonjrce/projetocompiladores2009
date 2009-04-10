@@ -16,7 +16,7 @@ try
 // Iniciamos um novo parser para a nossa gramatica
 ParserMiniJava parserMiniJava = new ParserMiniJava(System.in);
 parserMiniJava.Start();
-parserMiniJava.accept(new PrettyPrintVisitor());  
+//parserMiniJava.accept(new PrettyPrintVisitor());  
 }
 catch (ParseException e) 
 {      
@@ -92,36 +92,47 @@ SKIP: {
 | "\r"
 }
 
-Program Start() : 
-{ Program e; }
-{ e =Program() { return e; }  <EOF> }
-
-Program Program() : 
-{ MainClass m1; ClassDeclList c1; Program p1; }
-{
-m1 = MainClass()(LOOKAHEAD(2) c1 = ClassDecl() { p1 = new Program(m1,c1); }
-| c1 = Class() { p1 = new Program(m1,c1); }
+void Start() :
+ { MainClass m1; 
+   ClassDeclList c1 = new ClassDeclList(); ClassDecl c;
+ }
+ {  m1 = MainClass() 
+ 	( LOOKAHEAD(2) c = ClassDecl() { c1.addElement(c); }
+    | c = Class() { c1.addElement(c); }
  )*
- { return p1; }
-}
+ <EOF> { new Program(m1,c1); }
+ }
 
 MainClass MainClass() : 
-{ MainClass m1; Identifier i1,i2; Statement s1; }
+{ Identifier i1,i2; Statement s1; }
 { <CLASS> i1 = Id() <LBRACE> <PUBLIC> <STATIC> <VOID> <MAIN>
 <LPAREN> <STRING> <LBRACKET> <RBRACKET> i2 = Id() <RPAREN>
 <LBRACE> s1 = Statement() <RBRACE> <RBRACE>
-{m1 = new MainClass(i1,i2,s1); }
-{ return m1; }
+{ return new MainClass(i1,i2,s1); }
 }
 
-ClassDeclList Class() : {}
+ClassDeclSimple Class() : 
+{ Identifier i1; VarDeclList v1 = new VarDeclList(); 
+  MethodDeclList m1 = new MethodDeclList();
+  VarDecl v; MethodDecl m;
+}
 {
-<CLASS> <ID> <LBRACE> ( VarDecl() | MethodDecl() )* <RBRACE>
+<CLASS> i1 = Id() <LBRACE> 
+( v = VarDecl() { v1.addElement(v); } 
+| m = MethodDecl() { m1.addElement(m); } )* <RBRACE>
+{ return new ClassDeclSimple(i1,v1,m1); } 
 }
 
-ClassDeclList ClassDecl() : {}
+ClassDecl ClassDecl() : 
+{ Identifier i1,i2; VarDeclList v1 = new VarDeclList(); 
+  MethodDeclList m1 = new MethodDeclList();
+  VarDecl v; MethodDecl m;
+}
 {
-<CLASS> <ID> <EXTENDS> <ID> <LBRACE> ( VarDecl() | MethodDecl() )* <RBRACE>
+<CLASS> i1 = Id() <EXTENDS> i2 = Id() <LBRACE> 
+( v = VarDecl() { v1.addElement(v); } 
+| m = MethodDecl() { m1.addElement(m); } )* <RBRACE>
+{ return new ClassDeclExtends(i1,i2,v1,m1); } 
 }
 
 VarDecl VarDecl() : 
@@ -138,25 +149,29 @@ t = <ID> { return new Identifier(t.image); }
 }
 
 MethodDecl MethodDecl() : 
-{ Type t1; Identifier i1; FormalList f1; VarDeclList v1[];
-  StatementList s1[]; Exp e1; MethodDecl m1; }
+{ Type t1; Identifier i1; 
+  FormalList f1 = new FormalList(); 
+  VarDeclList v1 = new VarDeclList() ; VarDecl v;
+  StatementList s1 = new StatementList(); Statement s;
+  Exp e1; }
 {
-<PUBLIC> t1 = Type() i1 = Id() <LPAREN> f1 = FormalList() <RPAREN>
-<LBRACE> ( v1 = VarDecl() | s1 = Statement() )* 
-<RETURN> e1 = Exp() <PONTOVIRGULA> <RBRACE>
-{ m1 = new MethodDecl(t1,i1,f1,v1,s1,e1); }
-{return m1; }
+<PUBLIC> t1 = Type() i1 = Id() <LPAREN> f1 = FormalList() <RPAREN> <LBRACE> 
+( LOOKAHEAD(2) v = VarDecl() { v1.addElement(v); } 
+| s = Statement() { s1.addElement(s); } )* <RETURN>
+ e1 = Exp() <PONTOVIRGULA> <RBRACE>
+{ return new MethodDecl(t1,i1,f1,v1,s1,e1); }
 }
 
-void MethodBody() : {}
-{
-LOOKAHEAD(2) VarDecl()
-| Statement()
-}
 
-void FormalList() : {}
+FormalList FormalList() : 
+{ FormalList f1 = new FormalList(); 
+  Formal f2,f3; Identifier i1,i2; Type t1,t2; }
 {
-[ Type() <ID> ( <VIRGULA> Type() <ID> )* ]
+[ t1 = Type() i1 =  Id() 
+  { f2 = new Formal(t1,i1); f1.addElement(f2); }  
+  ( <VIRGULA> t2 =  Type() i2 = Id() 
+  { f3 = new Formal(t2,i2); f1.addElement(f3); } )* ]
+  {return f1; }
 }
 
 Type Type() : 
@@ -173,15 +188,19 @@ Exp Object() :
 {
 <THIS> 
 | t = <ID> {return new IdentifierExp(t.image); }
+
 }
 
-Statement Statement() : {}
+Statement Statement() : 
+{Statement s; StatementList s1 = new StatementList();}
 {
-If()
-| While()
-| Print()
-| (LOOKAHEAD(ArrayAssignment())ArrayAssignment() | UnaryAssignment()) <PONTOVIRGULA>
-| <LBRACE> (Statement())* <RBRACE>
+s = If() {return s;}
+| s = While() {return s;}
+| s = Print() {return s;}
+| (LOOKAHEAD(ArrayAssignment())s = ArrayAssignment() {return s;} 
+             | s = UnaryAssignment() {return s;} ) <PONTOVIRGULA>
+| <LBRACE> (s = Statement() { s1.addElement(s); })* 
+  {return new Block(s1);} <RBRACE>
 }
 
 Statement UnaryAssignment() : 
@@ -225,10 +244,10 @@ Statement While() :
 { return s2; } 
 }
 
-Exp Exp() : {}
+Exp Exp() : { Exp e; }
 {
-OrExp()
-| NewObject()
+e = OrExp() {return e;} 
+| e = NewObject() {return e;}
 }
 
 Exp OrExp() : 
@@ -288,32 +307,36 @@ Exp UnaryExpression() :
 {return e2; } 
 }
 
-Exp Element() : {}
+Exp Element() : 
+{Exp e;}
 {
 <INTEGER_LITERAL>
 | <TRUE> 
 | <FALSE> 
-| IdExp()
-| <LPAREN> Exp() <RPAREN>
+| e = IdExp() {return e;}
+| <LPAREN> e = Exp() <RPAREN> {return e;}
 }
 
-Exp IdExp() : {}
-{
-LOOKAHEAD(2) <ID> <PONTO> <LENGTH>
-| [ LOOKAHEAD(2) Object() <PONTO> ] <ID> [ <LBRACKET> Exp() <RBRACKET>
-| <PONTO> <LENGTH>
-| <LPAREN> ExpList() <RPAREN> ]
+Exp IdExp() : 
+{ Exp o1=null,o2; Identifier i1; ExpList e2 = new ExpList(); Exp e3; }
+{ 
+  LOOKAHEAD(2) o1 = Object() <PONTO> <LENGTH> { return new ArrayLength(o1); }
+  | [ LOOKAHEAD(2) o1 = Object() <PONTO> ]  i1 = Id() [ <LPAREN> e2 = ExpList() <RPAREN> { return new Call(o1,i1,e2); }  
+  | o2 = Object() <LBRACKET> e3 = Exp() <RBRACKET> { return new ArrayLookup(o2,e3); } ]
 }
 
 Exp NewObject() : 
 { Identifier i1; Exp e1;}
 {
-<NEW> i1 = Id() <LPAREN> <RPAREN> { e1 = new NewObject(i1); } 
+<NEW> i1 = Id() { e1 = new NewObject(i1); }  <LPAREN> <RPAREN> 
 { return e1; }
 }
 
-ExpList ExpList() : {}
+ExpList ExpList() : 
+{ExpList e1 = new ExpList(); Exp e2,e3;}
 {
-[ Exp() (<VIRGULA> Exp())* ]
+[ e2 = Exp() { e1.addElement(e2); } 
+ (<VIRGULA> e3 = Exp() { e1.addElement(e3); } )* ]
+ { return e1; }
 }
 
