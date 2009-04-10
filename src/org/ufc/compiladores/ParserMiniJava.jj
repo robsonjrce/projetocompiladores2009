@@ -1,29 +1,35 @@
 /**
- *
- * Analisador Lexico e Sintatico para Linguagem MiniJava 
- *
- */
- PARSER_BEGIN(ParserMiniJava)
- 	class ParserMiniJava 
- 	{
- 		public static void main(String args[]) throws Exception
- 		{
- 			// Iniciamos um novo parser para a nossa gramatica
-			ParserMiniJava parserMiniJava = new ParserMiniJava(System.in);
-			
-			// Checar os dados enquanto passarmos dados validos ao parser
-		    while (true)
-		    {
-		        parserMiniJava.Start();
-		    }
- 		}
- 	}
- PARSER_END(ParserMiniJava)
- 
- /* Tokens */
- TOKEN: {
-	  
-	 <#LETRA: ["_","a"-"z","A"-"Z"]>
+*
+* Analisador Lexico e Sintatico para Linguagem MiniJava
+*
+*/
+
+PARSER_BEGIN(ParserMiniJava)
+import syntaxtree.*;
+import visitor.*;
+public class ParserMiniJava
+{
+public static void main(String args[])
+{
+try
+{	
+// Iniciamos um novo parser para a nossa gramatica
+ParserMiniJava parserMiniJava = new ParserMiniJava(System.in);
+parserMiniJava.Start();
+parserMiniJava.accept(new PrettyPrintVisitor());  
+}
+catch (ParseException e) 
+{      
+ System.out.println(e.toString());
+}
+}
+}
+PARSER_END(ParserMiniJava)
+
+/* Tokens */
+TOKEN: {
+
+ <#LETRA: ["_","a"-"z","A"-"Z"]>
 	| <#DIGITO: ["0"-"9"]>
 
  	| <MAINCLASS: "MainClass"> 
@@ -59,8 +65,9 @@
 	| <BARRA: "/">
 
 	| <INTEGER_LITERAL: <DIGITO> (<DIGITO>)*>
-	| <BOOLEAN_LITERAL: ("true"|"false")>
-
+	| <TRUE: "true">
+    | <FALSE: "false">
+    
 	| <NEW: "new">
 	| <THIS: "this">
  	
@@ -77,198 +84,236 @@
 	| <ID: <LETRA> (<LETRA>|<DIGITO>)*>
 }
 
- SKIP: {
- 	  <"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
- 	| " "
- 	| "\n"
- 	| "\t"
- 	| "\r"
- }
- 
- void Start() : {}
-{
-Program() <EOF>
+SKIP: {
+<"//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+| " "
+| "\n"
+| "\t"
+| "\r"
 }
 
-void Program() : {}
+Program Start() : 
+{ Program e; }
+{ e =Program() { return e; }  <EOF> }
+
+Program Program() : 
+{ MainClass m1; ClassDeclList c1; Program p1; }
 {
-MainClass()(LOOKAHEAD(ClassDecl())ClassDecl() | Class())*
+m1 = MainClass()(LOOKAHEAD(2) c1 = ClassDecl() { p1 = new Program(m1,c1); }
+| c1 = Class() { p1 = new Program(m1,c1); }
+ )*
+ { return p1; }
 }
 
-void MainClass() : {}
-{ <CLASS> <ID> <LBRACE> <PUBLIC> <STATIC> <VOID> <MAIN>
-<LPAREN> <STRING> <LBRACKET> <RBRACKET> <ID> <RPAREN>
-<LBRACE> Statement() <RBRACE> <RBRACE>
+MainClass MainClass() : 
+{ MainClass m1; Identifier i1,i2; Statement s1; }
+{ <CLASS> i1 = Id() <LBRACE> <PUBLIC> <STATIC> <VOID> <MAIN>
+<LPAREN> <STRING> <LBRACKET> <RBRACKET> i2 = Id() <RPAREN>
+<LBRACE> s1 = Statement() <RBRACE> <RBRACE>
+{m1 = new MainClass(i1,i2,s1); }
+{ return m1; }
 }
 
-void Class() : {}
+ClassDeclList Class() : {}
 {
-<CLASS> <ID> <LBRACE> (Body())* <RBRACE>
+<CLASS> <ID> <LBRACE> ( VarDecl() | MethodDecl() )* <RBRACE>
 }
 
-void ClassDecl() : {}
+ClassDeclList ClassDecl() : {}
 {
-<CLASS> <ID> <EXTENDS> <ID> <LBRACE> (Body())* <RBRACE>
+<CLASS> <ID> <EXTENDS> <ID> <LBRACE> ( VarDecl() | MethodDecl() )* <RBRACE>
 }
 
-void Body() : {}
+VarDecl VarDecl() : 
+{ Type t1; Identifier i1; VarDecl v1; }
 {
-VarDecl()
-| MethodDecl()
+t1 = Type() i1 = Id() <PONTOVIRGULA>
+{ v1 = new VarDecl(t1,i1); }
+{return v1; }
 }
 
-void VarDecl() : {}
-{
-Type() <ID> <PONTOVIRGULA>
+Identifier Id() : {Token t;}
+{ 
+t = <ID> { return new Identifier(t.image); }
 }
 
-void MethodDecl() : {}
+MethodDecl MethodDecl() : 
+{ Type t1; Identifier i1; FormalList f1; VarDeclList v1[];
+  StatementList s1[]; Exp e1; MethodDecl m1; }
 {
-<PUBLIC> Type() <ID> <LPAREN> FormalList() <RPAREN>
-<LBRACE>
-(MethodBody())* <RETURN> Exp()<PONTOVIRGULA>
-<RBRACE>
+<PUBLIC> t1 = Type() i1 = Id() <LPAREN> f1 = FormalList() <RPAREN>
+<LBRACE> ( v1 = VarDecl() | s1 = Statement() )* 
+<RETURN> e1 = Exp() <PONTOVIRGULA> <RBRACE>
+{ m1 = new MethodDecl(t1,i1,f1,v1,s1,e1); }
+{return m1; }
 }
 
 void MethodBody() : {}
 {
-LOOKAHEAD(VarDecl()) VarDecl()
+LOOKAHEAD(2) VarDecl()
 | Statement()
 }
 
 void FormalList() : {}
 {
-[ Parameter() ( <VIRGULA> Parameter() )* ]
+[ Type() <ID> ( <VIRGULA> Type() <ID> )* ]
 }
 
-void Parameter() : {}
-{
-Type() <ID>
-}
-
-void Type() : {}
+Type Type() : 
+{ Token t; }
 {
 <BOOLEAN>
-| <ID>
-| LOOKAHEAD(<INT_VETOR>) <INT_VETOR>
-| <INT>
+| t = <ID> { return new IdentifierType(t.image); }
+| LOOKAHEAD(2) <INT_VETOR>
+| <INT> 
 }
 
-void Object() : {}
+Exp Object() : 
+{ Token t;}
 {
-<THIS>
-| <ID>
+<THIS> 
+| t = <ID> {return new IdentifierExp(t.image); }
 }
 
-void Statement() : {}
+Statement Statement() : {}
 {
 If()
 | While()
 | Print()
-| Assignment()
+| (LOOKAHEAD(ArrayAssignment())ArrayAssignment() | UnaryAssignment()) <PONTOVIRGULA>
 | <LBRACE> (Statement())* <RBRACE>
 }
 
-void Assignment() : {}
+Statement UnaryAssignment() : 
+{ Identifier i1; Exp e1; Statement s1; }
 {
-(LOOKAHEAD(ArrayAssignment())ArrayAssignment() |
-UnaryAssignment()) <PONTOVIRGULA>
+[ LOOKAHEAD(2) Object() <PONTO> ] i1 = Id() <RECEBE> e1 = Exp()
+{ s1 = new Assign(i1,e1); }
+{return s1; }
 }
 
-void UnaryAssignment() : {}
-{
-[ LOOKAHEAD(2) Object() <PONTO> ]
-<ID> <RECEBE> Exp()
-}
-
-void ArrayAssignment() : {}
+Statement ArrayAssignment() : 
+{ Exp e1,e2; Statement s1; Identifier i1; }
 {
 [ LOOKAHEAD(2) Object() <PONTO> ]
-<ID> <LBRACKET> Exp() <RBRACKET>
-<RECEBE> Exp()
+i1 = Id() <LBRACKET> e1 = Exp() <RBRACKET>
+<RECEBE> e2 = Exp() { s1 = new ArrayAssign(i1,e1,e2); }
+{ return s1; } 
 }
 
-void If() : {}
+Statement If() : 
+{ Exp e1; Statement s1,s2,s3; }
 {
-<IF> <LPAREN> Exp() <RPAREN> Statement() <ELSE> Statement()
+<IF> <LPAREN> e1 = Exp() <RPAREN> s1 =  Statement() 
+<ELSE> s2 = Statement() { s3 = new If(e1,s1,s2); }
+{ return s3; } 
 }
 
-void Print() : {}
+Statement Print() : 
+{ Exp e1; Statement s1; }
 {
-<PRINT_LINE> <LPAREN> Exp() <RPAREN> <PONTOVIRGULA>
+<PRINT_LINE> <LPAREN> e1 = Exp() <RPAREN> <PONTOVIRGULA>
+{ s1 = new Print(e1); }
+{ return s1; }
 }
 
-void While() : {}
+Statement While() : 
+{ Exp e1; Statement s1,s2; }
 {
-<WHILE> <LPAREN> Exp() <RPAREN> Statement()
+<WHILE> <LPAREN> e1 = Exp() <RPAREN> s1 = Statement()
+{ s2 = new While(e1,s1); }
+{ return s2; } 
 }
 
-void Exp() : {}
+Exp Exp() : {}
 {
 OrExp()
 | NewObject()
 }
 
-void OrExp() : {}
+Exp OrExp() : 
+{ Exp e1,e2; }
 {
-AndExp() ( <OU> AndExp() )*
+e1 = AndExp() ( <OU> e2= AndExp() { e1 = new Or(e1,e2); } )*
+{ return e1; }
 }
 
-void AndExp() : {}
+Exp AndExp() : 
+{ Exp e1,e2; }
 {
-NotExp() ( <E> NotExp())*
+e1 = NotExp() ( <E> e2 = NotExp() { e1 = new And(e1,e2); } )*
+{ return e1; }
 }
 
-void NotExp() : {}
+Exp NotExp() : 
+{ Exp e1; }
 {
-[ <NEGADO> ] LGEExp()
+[ <NEGADO> ] e1 = LGEExp() { e1 = new Not(e1); } 
+{ return e1; }
 }
 
-void LGEExp() : {}
+Exp LGEExp() : 
+{ Exp e1,e2; }
 {
-AdditiveExpression() ( ( <MAIOR> | <MENOR> | <IGUAL> ) AdditiveExpression())*
+e1 = AdditiveExpression() 
+  ( <MAIOR> e2 = AdditiveExpression() { e1 = new MoreThan(e1,e2); } 
+  | <MENOR> e2 = AdditiveExpression() { e1 = new LessThan(e1,e2); }
+  | <IGUAL> e2 = AdditiveExpression() { e1 = new Equal(e1,e2); } 
+  )*
+  { return e1; }
 }
 
-void AdditiveExpression() : {}
+Exp AdditiveExpression() : 
+{ Exp e1,e2; }
 {
-MultiplicativeExpression() ( ( <MAIS> | <MENOS> )
-MultiplicativeExpression() )*
+e1 = MultiplicativeExpression() 
+  ( <MAIS> e2 = MultiplicativeExpression() { e1 = new Plus(e1,e2); }
+  | <MENOS> e2 = MultiplicativeExpression()  { e1 = new Minus(e1,e2); }
+  )*
+  { return e1; } 
 }
 
-void MultiplicativeExpression() : {}
+Exp MultiplicativeExpression() : 
+{ Exp e1,e2; }
 {
-UnaryExpression() ( ( <ESTRELA> | <BARRA> ) UnaryExpression() )*
+e1 = UnaryExpression() 
+  (  <ESTRELA> e2 = UnaryExpression() { e1 = new Times(e1,e2); } )*
+  { return e1; }
 }
 
-void UnaryExpression() : {}
+Exp UnaryExpression() : 
+{ Exp e1,e2; }
 {
-[ <MENOS> ] Element()
+[ <MENOS> ] e1 = Element() { e2 = new Not(e1); }
+{return e2; } 
 }
 
-void Element() : {}
+Exp Element() : {}
 {
 <INTEGER_LITERAL>
-| <BOOLEAN_LITERAL>
+| <TRUE> 
+| <FALSE> 
 | IdExp()
 | <LPAREN> Exp() <RPAREN>
 }
 
-void IdExp() : {}
+Exp IdExp() : {}
 {
-LOOKAHEAD( <ID> <PONTO><LENGTH> ) <ID> <PONTO> <LENGTH>
-| [ LOOKAHEAD(Object() <PONTO>) Object() <PONTO> ] <ID> [ <LBRACKET>
-Exp() <RBRACKET>
+LOOKAHEAD(2) <ID> <PONTO> <LENGTH>
+| [ LOOKAHEAD(2) Object() <PONTO> ] <ID> [ <LBRACKET> Exp() <RBRACKET>
 | <PONTO> <LENGTH>
-| <LPAREN> ExpList() <RPAREN>  ]
+| <LPAREN> ExpList() <RPAREN> ]
 }
 
-void NewObject() : {}
+Exp NewObject() : 
+{ Identifier i1; Exp e1;}
 {
-<NEW> ( <INT> <LBRACKET> Exp() <RBRACKET> | <ID> <LPAREN>
-<RPAREN> )
+<NEW> i1 = Id() <LPAREN> <RPAREN> { e1 = new NewObject(i1); } 
+{ return e1; }
 }
 
-void ExpList() : {}
+ExpList ExpList() : {}
 {
 [ Exp() (<VIRGULA> Exp())* ]
 }
+
