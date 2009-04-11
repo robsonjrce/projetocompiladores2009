@@ -93,81 +93,68 @@ SKIP: {
 }
 
 void Start() :
- { MainClass m1; 
-   ClassDeclList c1 = new ClassDeclList(); ClassDecl c;
- }
+ { MainClass m1; ClassDeclList c1 = new ClassDeclList(); ClassDecl c; }
  {  m1 = MainClass() 
- 	( LOOKAHEAD(2) c = ClassDecl() { c1.addElement(c); }
-    | c = Class() { c1.addElement(c); }
- )*
- <EOF> { new Program(m1,c1); }
+ 	( LOOKAHEAD(3) c = ClassDecl() { c1.addElement(c); }
+    | c = Class() { c1.addElement(c); } )*
+    <EOF> { new Program(m1,c1); }
  }
 
 MainClass MainClass() : 
 { Identifier i1,i2; Statement s1; }
 { <CLASS> i1 = Id() <LBRACE> <PUBLIC> <STATIC> <VOID> <MAIN>
-<LPAREN> <STRING> <LBRACKET> <RBRACKET> i2 = Id() <RPAREN>
-<LBRACE> s1 = Statement() <RBRACE> <RBRACE>
-{ return new MainClass(i1,i2,s1); }
+  <LPAREN> <STRING> <LBRACKET> <RBRACKET> i2 = Id() <RPAREN>
+  <LBRACE> s1 = Statement() <RBRACE> <RBRACE>
+  { return new MainClass(i1,i2,s1); }
 }
 
 ClassDeclSimple Class() : 
-{ Identifier i1; VarDeclList v1 = new VarDeclList(); 
+{ VarDeclList v1 = new VarDeclList(); 
   MethodDeclList m1 = new MethodDeclList();
-  VarDecl v; MethodDecl m;
-}
-{
-<CLASS> i1 = Id() <LBRACE> 
-( v = VarDecl() { v1.addElement(v); } 
-| m = MethodDecl() { m1.addElement(m); } )* <RBRACE>
-{ return new ClassDeclSimple(i1,v1,m1); } 
+  VarDecl v; MethodDecl m; Identifier i1;}
+{ <CLASS> i1 = Id() <LBRACE> 
+  ( v = VarDecl() { v1.addElement(v); } 
+  | m = MethodDecl() { m1.addElement(m); } )* <RBRACE>
+  { return new ClassDeclSimple(i1,v1,m1); } 
 }
 
 ClassDecl ClassDecl() : 
-{ Identifier i1,i2; VarDeclList v1 = new VarDeclList(); 
+{ VarDeclList v1 = new VarDeclList(); 
   MethodDeclList m1 = new MethodDeclList();
-  VarDecl v; MethodDecl m;
-}
-{
-<CLASS> i1 = Id() <EXTENDS> i2 = Id() <LBRACE> 
-( v = VarDecl() { v1.addElement(v); } 
-| m = MethodDecl() { m1.addElement(m); } )* <RBRACE>
-{ return new ClassDeclExtends(i1,i2,v1,m1); } 
+  VarDecl v; MethodDecl m; Identifier i1,i2;  }
+{ <CLASS> i1 = Id() <EXTENDS> i2 = Id() <LBRACE> 
+  ( v = VarDecl() { v1.addElement(v); } 
+  | m = MethodDecl() { m1.addElement(m); } )* <RBRACE>
+  { return new ClassDeclExtends(i1,i2,v1,m1); } 
 }
 
 VarDecl VarDecl() : 
-{ Type t1; Identifier i1; VarDecl v1; }
-{
-t1 = Type() i1 = Id() <PONTOVIRGULA>
-{ v1 = new VarDecl(t1,i1); }
-{return v1; }
+{ Type t1; Identifier i1; }
+{ t1 = Type() i1 = Id() <PONTOVIRGULA>
+  { return new VarDecl(t1,i1); }
 }
 
-Identifier Id() : {Token t;}
-{ 
-t = <ID> { return new Identifier(t.image); }
+Identifier Id() : 
+{Token t;}
+{ t = <ID> { return new Identifier(t.image); }
 }
 
 MethodDecl MethodDecl() : 
-{ Type t1; Identifier i1; 
+{ Type t1; Identifier i1; Exp e1;
   FormalList f1 = new FormalList(); 
   VarDeclList v1 = new VarDeclList() ; VarDecl v;
-  StatementList s1 = new StatementList(); Statement s;
-  Exp e1; }
-{
-<PUBLIC> t1 = Type() i1 = Id() <LPAREN> f1 = FormalList() <RPAREN> <LBRACE> 
-( LOOKAHEAD(2) v = VarDecl() { v1.addElement(v); } 
-| s = Statement() { s1.addElement(s); } )* <RETURN>
- e1 = Exp() <PONTOVIRGULA> <RBRACE>
-{ return new MethodDecl(t1,i1,f1,v1,s1,e1); }
+  StatementList s1 = new StatementList(); Statement s;  }
+{ <PUBLIC> t1 = Type() i1 = Id() <LPAREN> f1 = FormalList() <RPAREN> <LBRACE> 
+  ( LOOKAHEAD(2) v = VarDecl() { v1.addElement(v); } 
+  | s = Statement() { s1.addElement(s); } )* <RETURN>
+  e1 = Exp() <PONTOVIRGULA> <RBRACE>
+  { return new MethodDecl(t1,i1,f1,v1,s1,e1); }
 }
-
 
 FormalList FormalList() : 
 { FormalList f1 = new FormalList(); 
   Formal f2,f3; Identifier i1,i2; Type t1,t2; }
-{
-[ t1 = Type() i1 =  Id() 
+{ [ t1 = Type() i1 =  Id() 
   { f2 = new Formal(t1,i1); f1.addElement(f2); }  
   ( <VIRGULA> t2 =  Type() i2 = Id() 
   { f3 = new Formal(t2,i2); f1.addElement(f3); } )* ]
@@ -176,167 +163,175 @@ FormalList FormalList() :
 
 Type Type() : 
 { Token t; }
-{
-<BOOLEAN>
-| t = <ID> { return new IdentifierType(t.image); }
-| LOOKAHEAD(2) <INT_VETOR>
-| <INT> 
-}
-
-Exp Object() : 
-{ Token t;}
-{
-<THIS> 
-| t = <ID> {return new IdentifierExp(t.image); }
-
+{ <BOOLEAN> { return new BooleanType(); }
+  | t = <ID> { return new IdentifierType(t.image); }
+  | LOOKAHEAD(3) <INT_VETOR> { return new IntArrayType(); }
+  | <INT>  { return new IntegerType(); }
 }
 
 Statement Statement() : 
-{Statement s; StatementList s1 = new StatementList();}
-{
-s = If() {return s;}
-| s = While() {return s;}
-| s = Print() {return s;}
-| (LOOKAHEAD(ArrayAssignment())s = ArrayAssignment() {return s;} 
-             | s = UnaryAssignment() {return s;} ) <PONTOVIRGULA>
-| <LBRACE> (s = Statement() { s1.addElement(s); })* 
-  {return new Block(s1);} <RBRACE>
+{ Statement s; StatementList s1 = new StatementList(); }
+{ s = If() {return s;}
+  | s = While() {return s;}
+  | s = Print() {return s;}
+  | (LOOKAHEAD(2) s = ArrayAssignment() {return s;} 
+                  | s = UnaryAssignment() {return s;} ) 
+  | <LBRACE> ( s = Statement() { s1.addElement(s); })*  <RBRACE> {return new Block(s1);}
 }
 
 Statement UnaryAssignment() : 
-{ Identifier i1; Exp e1; Statement s1; }
-{
-[ LOOKAHEAD(2) Object() <PONTO> ] i1 = Id() <RECEBE> e1 = Exp()
-{ s1 = new Assign(i1,e1); }
-{return s1; }
+{ Identifier i1; Exp e1; }
+{ i1 = Id() <RECEBE> e1 = Exp() <PONTOVIRGULA>
+  { return new Assign(i1,e1); }
 }
 
 Statement ArrayAssignment() : 
-{ Exp e1,e2; Statement s1; Identifier i1; }
-{
-[ LOOKAHEAD(2) Object() <PONTO> ]
-i1 = Id() <LBRACKET> e1 = Exp() <RBRACKET>
-<RECEBE> e2 = Exp() { s1 = new ArrayAssign(i1,e1,e2); }
-{ return s1; } 
+{ Exp e1,e2; Identifier i1; }
+{ i1=Id() <LBRACKET> e1=Exp() <RBRACKET> <RECEBE> e2=Exp() <PONTOVIRGULA>
+  { return new ArrayAssign(i1,e1,e2); }
 }
 
 Statement If() : 
-{ Exp e1; Statement s1,s2,s3; }
-{
-<IF> <LPAREN> e1 = Exp() <RPAREN> s1 =  Statement() 
-<ELSE> s2 = Statement() { s3 = new If(e1,s1,s2); }
-{ return s3; } 
+{ Exp e1; Statement s1,s2; }
+{ <IF> <LPAREN> e1 = Exp() <RPAREN> s1 =  Statement() <ELSE> s2 = Statement() 
+  { return new If(e1,s1,s2); }
 }
 
 Statement Print() : 
-{ Exp e1; Statement s1; }
-{
-<PRINT_LINE> <LPAREN> e1 = Exp() <RPAREN> <PONTOVIRGULA>
-{ s1 = new Print(e1); }
-{ return s1; }
+{ Exp e1; }
+{ <PRINT_LINE> <LPAREN> e1 = Exp() <RPAREN> <PONTOVIRGULA>
+  { return new Print(e1); }
 }
 
 Statement While() : 
-{ Exp e1; Statement s1,s2; }
-{
-<WHILE> <LPAREN> e1 = Exp() <RPAREN> s1 = Statement()
-{ s2 = new While(e1,s1); }
-{ return s2; } 
+{ Exp e1; Statement s1; }
+{ <WHILE> <LPAREN> e1 = Exp() <RPAREN> s1 = Statement()
+  { return new While(e1,s1); }
 }
 
-Exp Exp() : { Exp e; }
-{
-e = OrExp() {return e;} 
-| e = NewObject() {return e;}
+Exp Exp() : 
+{ Exp e; }
+{ ( LOOKAHEAD( PrimaryExp() <E> ) e = AndExp()
+  |	LOOKAHEAD( PrimaryExp() <OU> ) e = OrExp()
+  | LOOKAHEAD( PrimaryExp() <MENOR> ) e = LessThanExp()
+  | LOOKAHEAD( PrimaryExp() <MAIOR> ) e = MoreThanExp()
+  | LOOKAHEAD( PrimaryExp() <IGUAL> ) e = EqualExp()
+  | LOOKAHEAD( PrimaryExp() <MAIS> ) e = PlusExp()
+  | LOOKAHEAD( PrimaryExp() <MENOS> ) e = MinusExp()
+  | LOOKAHEAD( PrimaryExp() <ESTRELA> ) e = TimesExp()
+  | LOOKAHEAD( PrimaryExp() <LBRACKET> ) e = ArrayLookup()
+  | LOOKAHEAD( PrimaryExp() <PONTO> <LENGTH> ) e = ArrayLength()
+  | LOOKAHEAD( PrimaryExp() <PONTO> Id() <LPAREN> ) e=CallExp()
+  | e=PrimaryExp()  )
+  { return e; }
 }
 
 Exp OrExp() : 
 { Exp e1,e2; }
-{
-e1 = AndExp() ( <OU> e2= AndExp() { e1 = new Or(e1,e2); } )*
-{ return e1; }
+{ e1 = PrimaryExp() <OU> e2= PrimaryExp() 
+  { return new Or(e1,e2); }
 }
 
 Exp AndExp() : 
 { Exp e1,e2; }
-{
-e1 = NotExp() ( <E> e2 = NotExp() { e1 = new And(e1,e2); } )*
-{ return e1; }
+{ e1 = PrimaryExp() <E> e2 = PrimaryExp() 
+  { return new And(e1,e2); }
 }
 
-Exp NotExp() : 
+Exp LessThanExp() : 
+{ Exp e1,e2; }
+{ e1 = PrimaryExp() <MENOR> e2 = PrimaryExp() 
+  { return new LessThan(e1,e2); }
+}
+
+Exp MoreThanExp() : 
+{ Exp e1,e2; }
+{ e1 = PrimaryExp() <MAIOR> e2 = PrimaryExp() 
+  { return new MoreThan(e1,e2); }
+}
+
+Exp EqualExp() : 
+{ Exp e1,e2; }
+{ e1 = PrimaryExp() <IGUAL> e2 = PrimaryExp() 
+  { return new Equal(e1,e2); }
+}
+
+Exp PlusExp() : 
+{ Exp e1,e2; }
+{ e1 = PrimaryExp() <MAIS> e2 = PrimaryExp() 
+  { return new Plus(e1,e2); }
+}
+
+Exp MinusExp() : 
+{ Exp e1,e2; }
+{ e1 = PrimaryExp() <MENOS> e2 = PrimaryExp()  
+  { return new Minus(e1,e2); }
+}
+
+Exp TimesExp() : 
+{ Exp e1,e2; }
+{ e1 = PrimaryExp() <ESTRELA> e2 = PrimaryExp() 
+  { return new Times(e1,e2); } 
+}
+
+Exp ArrayLookup() :
+{ Exp e1,e2; } 
+{ e1 = PrimaryExp() <LBRACKET> e2=PrimaryExp() <RBRACKET>
+  { return new ArrayLookup(e1,e2); }
+}
+
+Exp ArrayLength() :
 { Exp e1; }
-{
-[ <NEGADO> ] e1 = LGEExp() { e1 = new Not(e1); } 
-{ return e1; }
+{ e1 = PrimaryExp() <PONTO> <LENGTH>
+  { return new ArrayLength(e1); }
 }
 
-Exp LGEExp() : 
-{ Exp e1,e2; }
+Exp CallExp() :
+{ Exp e; Identifier i1; ExpList e1 = new ExpList();  }
 {
-e1 = AdditiveExpression() 
-  ( <MAIOR> e2 = AdditiveExpression() { e1 = new MoreThan(e1,e2); } 
-  | <MENOR> e2 = AdditiveExpression() { e1 = new LessThan(e1,e2); }
-  | <IGUAL> e2 = AdditiveExpression() { e1 = new Equal(e1,e2); } 
-  )*
-  { return e1; }
-}
-
-Exp AdditiveExpression() : 
-{ Exp e1,e2; }
-{
-e1 = MultiplicativeExpression() 
-  ( <MAIS> e2 = MultiplicativeExpression() { e1 = new Plus(e1,e2); }
-  | <MENOS> e2 = MultiplicativeExpression()  { e1 = new Minus(e1,e2); }
-  )*
-  { return e1; } 
-}
-
-Exp MultiplicativeExpression() : 
-{ Exp e1,e2; }
-{
-e1 = UnaryExpression() 
-  (  <ESTRELA> e2 = UnaryExpression() { e1 = new Times(e1,e2); } )*
-  { return e1; }
-}
-
-Exp UnaryExpression() : 
-{ Exp e1,e2; }
-{
-[ <MENOS> ] e1 = Element() { e2 = new Not(e1); }
-{return e2; } 
-}
-
-Exp Element() : 
-{Exp e;}
-{
-<INTEGER_LITERAL>
-| <TRUE> 
-| <FALSE> 
-| e = IdExp() {return e;}
-| <LPAREN> e = Exp() <RPAREN> {return e;}
-}
-
-Exp IdExp() : 
-{ Exp o1=null,o2; Identifier i1; ExpList e2 = new ExpList(); Exp e3; }
-{ 
-  LOOKAHEAD(2) o1 = Object() <PONTO> <LENGTH> { return new ArrayLength(o1); }
-  | [ LOOKAHEAD(2) o1 = Object() <PONTO> ]  i1 = Id() [ <LPAREN> e2 = ExpList() <RPAREN> { return new Call(o1,i1,e2); }  
-  | o2 = Object() <LBRACKET> e3 = Exp() <RBRACKET> { return new ArrayLookup(o2,e3); } ]
-}
-
-Exp NewObject() : 
-{ Identifier i1; Exp e1;}
-{
-<NEW> i1 = Id() { e1 = new NewObject(i1); }  <LPAREN> <RPAREN> 
-{ return e1; }
+  e = PrimaryExp() <PONTO> i1 = Id() <LPAREN> e1 = ExpList() <RPAREN>
+  { return new Call(e,i1,e1); }
 }
 
 ExpList ExpList() : 
 {ExpList e1 = new ExpList(); Exp e2,e3;}
-{
-[ e2 = Exp() { e1.addElement(e2); } 
- (<VIRGULA> e3 = Exp() { e1.addElement(e3); } )* ]
- { return e1; }
+{ [ e2 = Exp() { e1.addElement(e2); } 
+  (<VIRGULA> e3 = Exp() { e1.addElement(e3); } )* ]
+  { return e1; }
 }
 
+Exp PrimaryExp() :
+{ Token t; Exp e; }
+{ ( t=<INTEGER_LITERAL> { return new IntegerLiteral(Integer.parseInt(t.image)); }
+  | <TRUE>   { return new True(); }
+  | <FALSE>  { return new False(); }
+  | t=<ID>   { return new IdentifierExp(t.image); }
+  | <THIS>   { return new This(); }
+  | LOOKAHEAD(3) e = ArrayAllocationExp()
+  | e = AllocationExp()
+  | e = NotExp()
+  | e = ParenExp() )
+  { return e; }
+}
+
+Exp ArrayAllocationExp() :
+{ Exp e; }
+{ <NEW> <INT> <LBRACKET> e=Exp() <RBRACKET>
+  { return new NewArray(e); }
+}
+
+Exp AllocationExp() :
+{ Identifier i1; }
+{ <NEW> i1=Id() <LPAREN>  <RPAREN>
+  { return new NewObject(i1); }
+}
+
+Exp NotExp() :
+{ Exp e1; }
+{ <NEGADO> e1 = Exp() { return new Not(e1); }
+}
+
+Exp ParenExp() :
+{ Exp e1; }
+{ <LPAREN> e1=Exp() <RPAREN> { return e1; }
+}
