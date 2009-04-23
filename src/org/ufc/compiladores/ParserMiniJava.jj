@@ -3,8 +3,12 @@
 * Analisador Lexico e Sintatico para Linguagem MiniJava
 *
 */
+options {
+  JAVA_UNICODE_ESCAPE = true;
+}
 
 PARSER_BEGIN(ParserMiniJava)
+import java.io.*;
 import syntaxtree.*;
 import visitor.*;
 public class ParserMiniJava
@@ -14,14 +18,22 @@ public static void main(String args[])
 try
 {	
 // Iniciamos um novo parser para a nossa gramatica
-ParserMiniJava parserMiniJava = new ParserMiniJava(System.in);
-parserMiniJava.Start();
-//parserMiniJava.accept(new PrettyPrintVisitor());  
+FileInputStream fi = new FileInputStream(new File("src/ProgramaTeste.mj"));
+System.setIn(fi);
+Program p = new ParserMiniJava(System.in).Start();
+System.out.println("Analise Terminada com Sucesso!");
+PrettyPrintVisitor ppv = new PrettyPrintVisitor();
+p.accept(ppv);
+
 }
 catch (ParseException e) 
 {      
  System.out.println(e.toString());
 }
+catch (java.io.FileNotFoundException e)  
+{  
+ System.out.println(e.toString());  
+}  
 }
 }
 PARSER_END(ParserMiniJava)
@@ -92,12 +104,12 @@ SKIP: {
 | "\r"
 }
 
-void Start() :
+Program Start() :
  { MainClass m1; ClassDeclList c1 = new ClassDeclList(); ClassDecl c; }
  {  m1 = MainClass() 
  	( LOOKAHEAD(3) c = ClassDecl() { c1.addElement(c); }
     | c = Class() { c1.addElement(c); } )*
-    <EOF> { new Program(m1,c1); }
+    <EOF> { return new Program(m1,c1);  }
  }
 
 MainClass MainClass() : 
@@ -171,12 +183,14 @@ Type Type() :
 
 Statement Statement() : 
 { Statement s; StatementList s1 = new StatementList(); }
-{ s = If() {return s;}
-  | s = While() {return s;}
-  | s = Print() {return s;}
+{ 
+  <LBRACE> ( s = Statement() { s1.addElement(s); })*  <RBRACE> {return new Block(s1);}
   | (LOOKAHEAD(2) s = ArrayAssignment() {return s;} 
                   | s = UnaryAssignment() {return s;} ) 
-  | <LBRACE> ( s = Statement() { s1.addElement(s); })*  <RBRACE> {return new Block(s1);}
+  | s = If() {return s;}
+  | s = While() {return s;}
+  | s = Print() {return s;}
+  
 }
 
 Statement UnaryAssignment() : 
