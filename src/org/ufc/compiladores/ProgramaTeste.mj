@@ -1,0 +1,41 @@
+// Programa de Teste para o Parser
+
+class ProgramaTeste
+{
+  public static void main(String[] argv)
+  {
+    if (a == 10)
+    { 
+    System.out.println(10); 
+    }
+    else {}
+  }
+}
+class ProgramaTesteBase
+{
+}
+class ProgramaTesteBaseExtends extends ProgramaTesteBase
+{
+}
+class ProgramaMetodos
+{
+  int a;
+
+  public int RetornaCinco(int entrada)
+  {
+    if (entrada == 5)
+    {
+      System.out.println(5);
+    }
+    else {}
+    if  ( ! (entrada == 5) )
+    {
+      System.out.println(6);
+    }
+    else
+    {
+      System.out.println(5);
+    }
+    return entrada;
+  }
+}
