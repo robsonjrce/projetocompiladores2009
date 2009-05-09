@@ -11,6 +11,7 @@ PARSER_BEGIN(ParserMiniJava)
 import java.io.*;
 import syntaxtree.*;
 import visitor.*;
+import Translate.Translate;
 public class ParserMiniJava
 {
 public static void main(String args[])
@@ -20,7 +21,6 @@ try
 // Iniciamos um novo parser para a nossa gramatica
 FileInputStream fi = new FileInputStream(new File("src/GCD.mj"));
 System.setIn(fi);
-
 
 Program p = new ParserMiniJava(System.in).Start();
 System.out.println("Analise Terminada com Sucesso!");
@@ -32,6 +32,8 @@ BuildSymbolTableVisitor stv = new BuildSymbolTableVisitor();
 p.accept(stv);
 p.accept(new TypeCheckVisitor(stv.getSymTab()));
 
+Translate t = new Translate(p, new Mips.MipsFrame());
+p.accept(t);
 
 }
 catch (ParseException e) 
@@ -234,10 +236,7 @@ Statement While() :
 Exp Exp() : 
 { Exp e; }
 { ( LOOKAHEAD( PrimaryExp() <E> ) e = AndExp()
-  |	LOOKAHEAD( PrimaryExp() <OU> ) e = OrExp()
   | LOOKAHEAD( PrimaryExp() <MENOR> ) e = LessThanExp()
-  | LOOKAHEAD( PrimaryExp() <MAIOR> ) e = MoreThanExp()
-  | LOOKAHEAD( PrimaryExp() <IGUAL> ) e = EqualExp()
   | LOOKAHEAD( PrimaryExp() <MAIS> ) e = PlusExp()
   | LOOKAHEAD( PrimaryExp() <MENOS> ) e = MinusExp()
   | LOOKAHEAD( PrimaryExp() <ESTRELA> ) e = TimesExp()
@@ -248,11 +247,6 @@ Exp Exp() :
   { return e; }
 }
 
-Exp OrExp() : 
-{ Exp e1,e2; }
-{ e1 = PrimaryExp() <OU> e2= PrimaryExp() 
-  { return new Or(e1,e2); }
-}
 
 Exp AndExp() : 
 { Exp e1,e2; }
@@ -264,18 +258,6 @@ Exp LessThanExp() :
 { Exp e1,e2; }
 { e1 = PrimaryExp() <MENOR> e2 = PrimaryExp() 
   { return new LessThan(e1,e2); }
-}
-
-Exp MoreThanExp() : 
-{ Exp e1,e2; }
-{ e1 = PrimaryExp() <MAIOR> e2 = PrimaryExp() 
-  { return new MoreThan(e1,e2); }
-}
-
-Exp EqualExp() : 
-{ Exp e1,e2; }
-{ e1 = PrimaryExp() <IGUAL> e2 = PrimaryExp() 
-  { return new Equal(e1,e2); }
 }
 
 Exp PlusExp() : 
