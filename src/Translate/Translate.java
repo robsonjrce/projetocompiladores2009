@@ -42,7 +42,11 @@ import java.util.LinkedList;
 import Frame.Access;
 import Temp.Label;
 import Temp.Temp;
+import Tree.ESEQ;
 import Tree.ExpList;
+import Tree.MOVE;
+import Tree.TEMP;
+import Util.List;
 
 public class Translate implements ExpVisitor
 {
@@ -410,10 +414,12 @@ public class Translate implements ExpVisitor
 
   public Exp visit(NewArray n)
   {
-    /* ADD CODE
-     (Note: use currFrame.externalCall("alloc", new Tree.ExpList(...))) 
-     -- don't return null */
-    return null;
+	  Tree.Exp e = n.e.accept(this).unEx();
+      ExpList params = new ExpList(e, null);
+      Temp t = new Temp();
+      
+      return new Ex(new ESEQ(new MOVE(new TEMP(t), currFrame.externalCall("newArray", params)),
+              new TEMP(t)));
   }
 
   public Exp visit(NewObject n)
