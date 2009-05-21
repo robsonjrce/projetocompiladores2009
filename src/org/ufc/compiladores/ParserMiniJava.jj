@@ -23,17 +23,19 @@ FileInputStream fi = new FileInputStream(new File("src/GCD.mj"));
 System.setIn(fi);
 
 Program p = new ParserMiniJava(System.in).Start();
-System.out.println("Analise Terminada com Sucesso!");
 
 PrettyPrintVisitor ppv = new PrettyPrintVisitor();
 p.accept(ppv);
+System.out.println("Analise Terminada com Sucesso!");
 
 BuildSymbolTableVisitor stv = new BuildSymbolTableVisitor();
 p.accept(stv);
 p.accept(new TypeCheckVisitor(stv.getSymTab()));
+System.out.println("Checagem de Tipo Terminada com Sucesso!");
 
 Translate t = new Translate(p, new Mips.MipsFrame());
 p.accept(t);
+System.out.println("Tradução Terminada com Sucesso!");
 
 }
 catch (ParseException e) 

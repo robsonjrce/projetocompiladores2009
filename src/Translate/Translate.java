@@ -35,10 +35,7 @@ import syntaxtree.VarDecl;
 import syntaxtree.While;
 import visitor.ExpVisitor;
 
-import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.LinkedList;
-
 import Frame.Access;
 import Temp.Label;
 import Temp.Temp;
@@ -46,11 +43,11 @@ import Tree.ESEQ;
 import Tree.ExpList;
 import Tree.MOVE;
 import Tree.TEMP;
-import Util.List;
 
 public class Translate implements ExpVisitor
 {
-
+  Tree.Exp e1 = null;
+  
   private Frag   frags     = null;
   private Frag   frags_tail = null;
   private Frame.Frame              currFrame = null;
@@ -212,7 +209,6 @@ public class Translate implements ExpVisitor
 	  }
 	  return null;
       //return new Nx(stm);
-
   }
 
   public Exp visit(If n)
@@ -255,9 +251,12 @@ public class Translate implements ExpVisitor
 
   public Exp visit(Print n)
   {
-	  Tree.Exp e = (n.e.accept(this)).unEx(); 
-      return new Nx(new Tree.MOVE(new Tree.TEMP(new Temp()),
-    		  new Tree.CALL(new Tree.NAME(new Label("_printint")),new Tree.ExpList(e, null))));
+	  if (e1 != null)
+
+	  {
+	  e1 = (n.e.accept(this)).unEx();
+	  }
+	  return new Ex(currFrame.externalCall("printInt", new Tree.ExpList(e1,null) ) );
   }
 
   public Exp visit(Assign n)
