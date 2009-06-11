@@ -4,7 +4,8 @@ public class TraceSchedule {
 
   public Tree.StmList stms;
   BasicBlocks theBlocks;
-  java.util.Dictionary table = new java.util.Hashtable();
+  @SuppressWarnings("unchecked")
+java.util.Dictionary table = new java.util.Hashtable();
 
   Tree.StmList getLast(Tree.StmList block) {
      Tree.StmList l=block;
@@ -76,7 +77,8 @@ public class TraceSchedule {
       }
   }
 
-  public TraceSchedule(BasicBlocks b) {
+  @SuppressWarnings("unchecked")
+public TraceSchedule(BasicBlocks b) {
     theBlocks=b;
     for(StmListList l = b.blocks; l!=null; l=l.tail)
        table.put(((Tree.LABEL)l.head.head).label, l.head);

@@ -6,6 +6,8 @@ import Temp.Temp;
 import Tree.*;
 import IR_visitor.*;
 
+
+@SuppressWarnings("unused")
 public final class Canon {
 
    private static class MoveCall extends Stm {
