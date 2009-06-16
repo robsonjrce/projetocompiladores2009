@@ -36,6 +36,7 @@ System.out.println("Checagem de Tipo Terminada com Sucesso!");
 Translate t = new Translate(p, new Mips.MipsFrame());
 p.accept(t);
 System.out.println("Tradução Terminada com Sucesso!");
+t.printResults();
 
 }
 catch (ParseException e) 

@@ -1,5 +1,22 @@
 package Tree;
 
+import Tree.BINOP;
+import Tree.CALL;
+import Tree.CJUMP;
+import Tree.CONST;
+import Tree.ESEQ;
+import Tree.EXP1;
+import Tree.Exp;
+import Tree.ExpList;
+import Tree.JUMP;
+import Tree.LABEL;
+import Tree.MEM;
+import Tree.MOVE;
+import Tree.NAME;
+import Tree.SEQ;
+import Tree.Stm;
+import Tree.TEMP;
+
 public class Print
 {
 
@@ -144,7 +161,7 @@ public class Print
     else if (s instanceof EXP1)
       prStm((EXP1) s, d);
     else
-      throw new Error("Print.prStm");
+    	System.out.print("Print.prStm");
   }
 
   void prExp(BINOP e, int d)
@@ -263,7 +280,7 @@ public class Print
     else if (e instanceof CALL)
       prExp((CALL) e, d);
     else
-      throw new Error("Print.prExp");
+      System.out.print("Print.prExp");
   }
 
   public void prStm(Stm s)
