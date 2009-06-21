@@ -1,40 +1,7 @@
 package Translate;
-import syntaxtree.And;
-import syntaxtree.ArrayAssign;
-import syntaxtree.ArrayLength;
-import syntaxtree.ArrayLookup;
-import syntaxtree.Assign;
-import syntaxtree.Block;
-import syntaxtree.BooleanType;
-import syntaxtree.Call;
-import syntaxtree.ClassDeclExtends;
-import syntaxtree.ClassDeclSimple;
-import syntaxtree.False;
-import syntaxtree.Formal;
-import syntaxtree.Identifier;
-import syntaxtree.IdentifierExp;
-import syntaxtree.IdentifierType;
-import syntaxtree.If;
-import syntaxtree.IntArrayType;
-import syntaxtree.IntegerLiteral;
-import syntaxtree.IntegerType;
-import syntaxtree.LessThan;
-import syntaxtree.MainClass;
-import syntaxtree.MethodDecl;
-import syntaxtree.Minus;
-import syntaxtree.NewArray;
-import syntaxtree.NewObject;
-import syntaxtree.Not;
-import syntaxtree.Plus;
-import syntaxtree.Print;
-import syntaxtree.Program;
-import syntaxtree.This;
-import syntaxtree.Times;
-import syntaxtree.True;
-import syntaxtree.VarDecl;
-import syntaxtree.While;
-import visitor.ExpVisitor;
 
+import syntaxtree.*;
+import visitor.ExpVisitor;
 import java.util.HashMap;
 import Frame.Access;
 import Temp.Label;
@@ -125,11 +92,15 @@ public class Translate implements ExpVisitor
     for (int i = 0; i < n.ml.size(); i++)
       n.ml.elementAt(i).accept(this);
     fieldVars = null;
+    
     return null;
   }
 
   public Exp visit(ClassDeclExtends n)
   {
+    for (int i=0; i < n.ml.size(); i++)
+      n.ml.elementAt(i).accept(this);
+    
     return null;
   }
 
@@ -153,6 +124,9 @@ public class Translate implements ExpVisitor
       n.vl.elementAt(i).accept(this);
 
     /* ADD CODE: move formals to fresh temps and add them to the HashMap vars */
+
+    /*for (int i = 0; i < n.sl.size(); i++)
+      n.sl.elementAt(i).accept(this);*/
     
     /* ADD CODE: set value of Tree.Exp objPtr
      Recall that objPtr is a pointer to the address in memory at which 
@@ -261,8 +235,7 @@ public class Translate implements ExpVisitor
 
   public Exp visit(Assign n)
   {  
-    Tree.Exp e = (n.e.accept(this)).unEx();
-    return new Nx(new Tree.MOVE(getIdTree(n.i.toString()), e));
+    return new Nx(new Tree.MOVE(n.i.accept(this).unEx(), n.e.accept(this).unEx()));
   }
 
   public Exp visit(ArrayAssign n)
@@ -444,11 +417,12 @@ public class Translate implements ExpVisitor
   private Tree.Exp getIdTree(String id)
   {
     Frame.Access a = vars.get(id);
+    
     if (a == null)
-      {
-        int offset = fieldVars.get(id).intValue();
-        return new Tree.MEM(new Tree.BINOP(Tree.BINOP.PLUS, objPtr, new Tree.CONST(offset)));
-      }
+    {
+      int offset = fieldVars.get(id).intValue();
+      return new Tree.MEM(new Tree.BINOP(Tree.BINOP.PLUS, objPtr, new Tree.CONST(offset)));
+    }
 
     return a.exp(new Tree.TEMP(currFrame.FP()));
   }
