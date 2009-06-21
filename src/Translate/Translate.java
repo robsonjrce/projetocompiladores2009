@@ -179,27 +179,27 @@ public class Translate implements ExpVisitor
 
   public Exp visit(Formal n)
   {
-    return null;
+    return new Ex(new Tree.CONST(0));
   }
 
   public Exp visit(IntArrayType n)
   {
-    return null;
+    return new Ex(new Tree.CONST(0));
   }
 
   public Exp visit(BooleanType n)
   {
-    return null;
+    return new Ex(new Tree.CONST(0));
   }
 
   public Exp visit(IntegerType n)
   {
-	  return null;
+    return new Ex(new Tree.CONST(0));
   }
 
   public Exp visit(IdentifierType n)
   {
-    return null;
+    return new Ex(new Tree.CONST(0));
   }
 
   public Exp visit(Block n)
