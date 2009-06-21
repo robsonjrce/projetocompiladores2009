@@ -89,7 +89,7 @@ public class TypeCheckVisitor extends DepthFirstVisitor {
         n.sl.elementAt(i).accept(this);
     }
     if (symbolTable.compareTypes(retType, n.e.accept(new TypeCheckExpVisitor()))==false){
-	System.out.println("Wrong return type for method "+ id);
+	System.out.println("Erro no tipo de retorno para o metodo "+ id);
 	System.exit(0);
     }
   }
@@ -105,8 +105,8 @@ public class TypeCheckVisitor extends DepthFirstVisitor {
   // Statement s1,s2;
   public void visit(If n) {
     if (! (n.e.accept(new TypeCheckExpVisitor()) instanceof BooleanType) ) {
-       System.out.println("The condition of if must be"+
-                          " of type boolean");
+       System.out.println("A condicao de um IF deve ser"+
+                          " do tipo boolean");
        System.exit(-1);
     }
     n.s1.accept(this);
@@ -117,8 +117,8 @@ public class TypeCheckVisitor extends DepthFirstVisitor {
   // Statement s;
   public void visit(While n) {
     if (! (n.e.accept(new TypeCheckExpVisitor()) instanceof BooleanType) ) {
-       System.out.println("The condition of while must be"+
-                          " of type boolean");
+       System.out.println("A condicao de um WHILE deve ser"+
+                          " do tipo boolean");
        System.exit(-1);
     }
     n.s.accept(this);
@@ -127,8 +127,8 @@ public class TypeCheckVisitor extends DepthFirstVisitor {
   // Exp e;
   public void visit(Print n) {
     if (! (n.e.accept(new TypeCheckExpVisitor()) instanceof IntegerType) ) {
-       System.out.println("The argument of System.out.println must be"+
-                          " of type int");
+       System.out.println("O argumento para System.out.println deve ser"+
+                          " do tipo int");
        System.exit(-1);
     }
   }
@@ -139,7 +139,7 @@ public class TypeCheckVisitor extends DepthFirstVisitor {
     Type t1 = symbolTable.getVarType(currMethod,currClass,n.i.toString());
     Type t2 = n.e.accept(new TypeCheckExpVisitor() );
     if (symbolTable.compareTypes(t1,t2)==false){
-	System.out.println("Type error in assignment to "+n.i.toString());	
+	System.out.println("Erro de tipagem na atribuicao para "+n.i.toString());	
 	System.exit(0);
     }
   }
@@ -150,19 +150,19 @@ public class TypeCheckVisitor extends DepthFirstVisitor {
       Type typeI = symbolTable.getVarType(currMethod,currClass,n.i.toString());
       
       if (! (typeI instanceof IntArrayType) ) {
-	  System.out.println("The identifier in an array assignment"+
-			     " must be of type int []");
+	  System.out.println("O identificador em uma atribuicao de vetor"+
+			     " deve ser do tipo int[]");
 	  System.exit(-1);
       }
       
     if (! (n.e1.accept(new TypeCheckExpVisitor()) instanceof IntegerType) ) {
-       System.out.println("The first expression in an array assignment"+
-                          " must be of type int");
+       System.out.println("A primeira expressao em uma atribuicao de vetor"+
+                          " deve ser do tipo int");
        System.exit(-1);
     }
     if (! (n.e1.accept(new TypeCheckExpVisitor()) instanceof IntegerType) ) {
-       System.out.println("The second expression in an array assignment"+
-                          " must be of type int");
+       System.out.println("A segunda expressao em uma atribuicao de vetor"+
+                          " deve ser do tipo int");
        System.exit(-1);
     }
   }
