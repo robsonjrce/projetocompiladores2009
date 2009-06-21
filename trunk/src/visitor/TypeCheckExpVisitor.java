@@ -6,11 +6,11 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e1,e2;
   public Type visit(And n) {
     if (! (n.e1.accept(this) instanceof BooleanType) ) {
-       System.out.println("Left side of And must be of type integer");
+       System.out.println("Lado esquerdo de um AND deve ser do tipo inteiro");
        System.exit(-1);
     }
     if (! (n.e2.accept(this) instanceof BooleanType) ) {
-       System.out.println("Right side of And must be of type integer");
+       System.out.println("Lado direito de um AND deve ser do tipo inteiro");
        System.exit(-1);
     }
     return new BooleanType();
@@ -19,11 +19,11 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e1,e2;
   public Type visit(LessThan n) {
     if (! (n.e1.accept(this) instanceof IntegerType) ) {
-       System.out.println("Left side of LessThan must be of type integer");
+       System.out.println("Lado esquerdo de um LessThan deve ser do tipo inteiro");
        System.exit(-1);
     }
     if (! (n.e2.accept(this) instanceof IntegerType) ) {
-       System.out.println("Right side of LessThan must be of type integer");
+       System.out.println("Lado direito de um LessThan deve ser do tipo inteiro");
        System.exit(-1);
     }
     return new BooleanType();
@@ -32,11 +32,11 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e1,e2;
   public Type visit(Plus n) {
     if (! (n.e1.accept(this) instanceof IntegerType) ) {
-       System.out.println("Left side of Plus must be of type integer");
+       System.out.println("Lado esquerdo de um Plus deve ser do tipo inteiro");
        System.exit(-1);
     }
     if (! (n.e2.accept(this) instanceof IntegerType) ) {
-       System.out.println("Right side of Plus must be of type integer");
+       System.out.println("Lado direito de um Plus deve ser do tipo inteiro");
        System.exit(-1);
     }
     return new IntegerType();
@@ -45,11 +45,11 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e1,e2;
   public Type visit(Minus n) {
     if (! (n.e1.accept(this) instanceof IntegerType) ) {
-       System.out.println("Left side of Minus must be of type integer");
+       System.out.println("Lado esquerdo de um Minus deve ser do tipo inteiro");
        System.exit(-1);
     }
     if (! (n.e2.accept(this) instanceof IntegerType) ) {
-       System.out.println("Right side of Minus must be of type integer");
+       System.out.println("Lado direito de um Minus deve ser do tipo inteiro");
        System.exit(-1);
     }
     return new IntegerType();
@@ -58,11 +58,11 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e1,e2;
   public Type visit(Times n) {
     if (! (n.e1.accept(this) instanceof IntegerType) ) {
-       System.out.println("Left side of Times must be of type integer");
+       System.out.println("Lado esquerdo de um Times deve ser do tipo inteiro");
        System.exit(-1);
     }
     if (! (n.e2.accept(this) instanceof IntegerType) ) {
-       System.out.println("Right side of Times must be of type integer");
+       System.out.println("Lado direito de um Times deve ser do tipo inteiro");
        System.exit(-1);
     }
     return new IntegerType();
@@ -71,11 +71,11 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e1,e2;
   public Type visit(ArrayLookup n) {
     if (! (n.e1.accept(this) instanceof IntArrayType) ) {
-       System.out.println("target of ArrayLookup must be of type IntArray");
+       System.out.println("alvo de um ArrayLookup deve ser do tipo IntArray");
        System.exit(-1);
     }
     if (! (n.e2.accept(this) instanceof IntegerType) ) {
-       System.out.println("ArrayLookup index must be of type integer");
+       System.out.println("indice de um ArrayLookup deve ser do tipo inteiro");
        System.exit(-1);
     }
     return new IntegerType();
@@ -84,7 +84,7 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e;
   public Type visit(ArrayLength n) {
     if (! (n.e.accept(this) instanceof IntArrayType) ) {
-       System.out.println("target of ArrayLength must of type Array");
+       System.out.println("alvo de um ArrayLength deve ser do tipo Array");
        System.exit(-1);
     }
     return new IntegerType();
@@ -96,9 +96,9 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   public Type visit(Call n) {
 
     if (! (n.e.accept(this) instanceof IdentifierType)){
-	System.out.println("method "+ n.i.toString() 
-			   + "called  on something that is not a"+
-			   " class or Object.");
+	System.out.println("metodo "+ n.i.toString() 
+			   + " chamado em estrutura que nao é"+
+			   " classe or Object.");
 	System.exit(-1);
     } 
 
@@ -115,7 +115,7 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
 	    t1 = calledMethod.getParamAt(i).type();
 	t2 = n.el.elementAt(i).accept(this);
 	if (!TypeCheckVisitor.symbolTable.compareTypes(t1,t2)){
-	    System.out.println("Type Error in arguments passed to " +
+	    System.out.println("Erro de tipagem em argumento passado para " +
 			       cname+"." +mname);
 	    System.exit(-1);  
 	}	    
@@ -151,7 +151,7 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   public Type visit(NewArray n) {
     
     if (! (n.e.accept(this) instanceof IntegerType) ) {
-       System.out.println("Array expression in NewArray must be of type integer");
+       System.out.println("Expressao Array em NewArray deve ser do tipo inteiro");
        System.exit(-1);
     }
     return new IntArrayType();
@@ -165,7 +165,7 @@ public class TypeCheckExpVisitor extends TypeDepthFirstVisitor {
   // Exp e;
   public Type visit(Not n) {
     if (! (n.e.accept(this) instanceof BooleanType) ) {
-       System.out.println("Not expression must be of type boolean");
+       System.out.println("Expressao NOT deve ser do tipo boolean");
        System.exit(-1);
     }
     return new BooleanType();

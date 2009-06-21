@@ -52,8 +52,8 @@ public class BuildSymbolTableVisitor extends TypeDepthFirstVisitor {
   // MethodDeclList ml;
   public Type visit(ClassDeclSimple n) {
     if(!symbolTable.addClass( n.i.toString(), null)){
-	System.out.println("Class " +  n.i.toString()
-			   + "is already defined" ); 
+	System.out.println("Classe " +  n.i.toString()
+			   + " ja esta definida" ); 
 	System.exit(-1);
     }
     currClass =  symbolTable.getClass(n.i.toString());
@@ -72,8 +72,8 @@ public class BuildSymbolTableVisitor extends TypeDepthFirstVisitor {
   // MethodDeclList ml;
   public Type visit(ClassDeclExtends n) {
     if(!symbolTable.addClass( n.i.toString(),  n.j.toString())){
-	System.out.println("Class " +  n.i.toString()
-			   + "is already defined" ); 
+	System.out.println("Classe " +  n.i.toString()
+			   + " ja esta definida" ); 
 	System.exit(-1);
     }
     currClass = symbolTable.getClass(n.i.toString());
@@ -96,14 +96,14 @@ public class BuildSymbolTableVisitor extends TypeDepthFirstVisitor {
 
       if (currMethod == null){
 	  if (!currClass.addVar(id,t)){
-	      System.out.println(id + "is already defined in " 
+	      System.out.println("Identificador " + id + "  ja esta definido em " 
 				 + currClass.getId()); 
 	      System.exit(-1);
 	  }
       } else {
 	  
 	  if (!currMethod.addVar(id,t)){
-	      System.out.println(id + "is already defined in " 
+	      System.out.println("Identificador " + id + "  ja esta definido em " 
 				 + currClass.getId() + "." +
 				 currMethod.getId());
 	      System.exit(-1);
@@ -123,8 +123,8 @@ public class BuildSymbolTableVisitor extends TypeDepthFirstVisitor {
     String id = n.i.toString();
     
     if (!currClass.addMethod(id,t)){
-	System.out.println("Method " + id 
-			   + "is already defined in " 
+	System.out.println("Metodo " + id 
+			   + " ja esta definido em " 
 			   + currClass.getId()); 
 	System.exit(-1);
     }
@@ -154,7 +154,7 @@ public class BuildSymbolTableVisitor extends TypeDepthFirstVisitor {
     String id = n.i.toString();
     
     if (!currMethod.addParam(id,t)){
-	System.out.println("Formal" + id + "is already defined in " 
+	System.out.println("Formal" + id + " ja esta definido em " 
 			   + currClass.getId() + "." +
 			   currMethod.getId());
 	System.exit(-1);
