@@ -8,47 +8,9 @@ options {
 }
 
 PARSER_BEGIN(ParserMiniJava)
-import java.io.*;
-import syntaxtree.*;
-import visitor.*;
-import Translate.Translate;
-public class ParserMiniJava
-{
-public static void main(String args[])
-{
-try
-{	
-// Iniciamos um novo parser para a nossa gramatica
-FileInputStream fi = new FileInputStream(new File("src/GCD.mj"));
-System.setIn(fi);
+package Parser;
 
-Program p = new ParserMiniJava(System.in).Start();
-
-PrettyPrintVisitor ppv = new PrettyPrintVisitor();
-p.accept(ppv);
-System.out.println("Analise Terminada com Sucesso!");
-
-BuildSymbolTableVisitor stv = new BuildSymbolTableVisitor();
-p.accept(stv);
-p.accept(new TypeCheckVisitor(stv.getSymTab()));
-System.out.println("Checagem de Tipo Terminada com Sucesso!");
-
-Translate t = new Translate(p, new Mips.MipsFrame());
-p.accept(t);
-System.out.println("Tradução Terminada com Sucesso!");
-t.printResults();
-
-}
-catch (ParseException e) 
-{      
- System.out.println(e.toString());
-}
-catch (java.io.FileNotFoundException e)  
-{  
- System.out.println(e.toString());  
-}  
-}
-}
+public class ParserMiniJava{}
 PARSER_END(ParserMiniJava)
 
 /* Tokens */
