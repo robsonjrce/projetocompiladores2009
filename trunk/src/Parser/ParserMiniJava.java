@@ -2,7 +2,6 @@
 package Parser;
 
 import syntaxtree.*;
-import visitor.*;
 
 public class ParserMiniJava implements ParserMiniJavaConstants {
 
