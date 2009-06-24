@@ -9,26 +9,35 @@ public class Main {
 	{
 		try
 		{	
-			// Iniciamos um novo parser para a nossa gramatica
-			FileInputStream fi = new FileInputStream(new File("src/Parser/GCD.mj"));
-			System.setIn(fi);
-			
+		  // testando entrada para arquivo
+		  if (args.length > 0)
+		  {
+		    File input = new File(args[0]);
+  			FileInputStream fi = new FileInputStream(input);
+  			System.setIn(fi);
+		  }
+
+      // Iniciamos um novo parser para a nossa gramatica
 			ParserMiniJava pmj = new ParserMiniJava(System.in); 
-			
 			Program p = pmj.Start();
-			
+
+			// Imprimindo o resultado do parser
 			PrettyPrintVisitor ppv = new PrettyPrintVisitor();
 			p.accept(ppv);
 			System.out.println("Analise Terminada com Sucesso!");
 			
+			// Checagem de tipo
 			BuildSymbolTableVisitor stv = new BuildSymbolTableVisitor();
 			p.accept(stv);
 			p.accept(new TypeCheckVisitor(stv.getSymTab()));
 			System.out.println("Checagem de Tipo Terminada com Sucesso!");
 			
+			// Traducao do codigo
 			Translate t = new Translate(p, new Mips.MipsFrame());
 			p.accept(t);
 			System.out.println("Traducao Terminada com Sucesso!");
+			
+			// Imprimindo traducao de codigo
 			t.printResults();
 		}
 		catch (ParseException e) 
